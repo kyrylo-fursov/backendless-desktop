@@ -16,8 +16,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
 import java.util.List;
-
 
 public class FileOperations {
 
@@ -26,41 +26,12 @@ public class FileOperations {
         Backendless.Files.createDirectory(userDirectory, new AsyncCallback<Void>() {
             @Override
             public void handleResponse(Void response) {
-                createSharedWithMeFolder(userDirectory);
+                Platform.runLater(() -> showAlert("User directory created successfully."));
             }
 
             @Override
             public void handleFault(BackendlessFault fault) {
                 Platform.runLater(() -> showAlert("Error creating user directory: " + fault.getMessage()));
-            }
-        });
-    }
-
-    public static void createSharedWithMeFolder(String userDirectory) {
-        String sharedWithMeDirectory = userDirectory + "/shared_with_me";
-        Backendless.Files.createDirectory(sharedWithMeDirectory, new AsyncCallback<Void>() {
-            @Override
-            public void handleResponse(Void response) {
-                Platform.runLater(() -> showAlert("User and shared_with_me directories created successfully."));
-            }
-
-            @Override
-            public void handleFault(BackendlessFault fault) {
-                Platform.runLater(() -> showAlert("Error creating shared_with_me directory: " + fault.getMessage()));
-            }
-        });
-    }
-
-    public static void createFolder(String folderName) {
-        Backendless.Files.createDirectory(folderName, new AsyncCallback<Void>() {
-            @Override
-            public void handleResponse(Void response) {
-                Platform.runLater(() -> showAlert("Folder created successfully."));
-            }
-
-            @Override
-            public void handleFault(BackendlessFault fault) {
-                Platform.runLater(() -> showAlert("Error creating folder: " + fault.getMessage()));
             }
         });
     }
@@ -79,15 +50,15 @@ public class FileOperations {
         });
     }
 
-    public static void listFiles(String directory) {
+    public static void listFiles(String directory, FileListCallback callback) {
         Backendless.Files.listing(directory, "*", false, new AsyncCallback<List<FileInfo>>() {
             @Override
             public void handleResponse(List<FileInfo> response) {
-                StringBuilder fileList = new StringBuilder("Files:\n");
+                List<String> fileList = new ArrayList<>();
                 for (FileInfo file : response) {
-                    fileList.append(file.getName()).append("\n");
+                    fileList.add(file.getName());
                 }
-                Platform.runLater(() -> showAlert(fileList.toString()));
+                callback.onFilesListed(fileList);
             }
 
             @Override
@@ -135,5 +106,9 @@ public class FileOperations {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public interface FileListCallback {
+        void onFilesListed(List<String> files);
     }
 }

@@ -1,13 +1,13 @@
 package backendless;
 
-import com.backendless.Backendless;
-import com.backendless.BackendlessUser;
-import com.backendless.async.callback.AsyncCallback;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import com.backendless.BackendlessUser;
 
 import java.io.File;
 
@@ -16,84 +16,91 @@ public class FileOperationsPane extends GridPane {
     private BackendlessUser loggedInUser;
     private String userDirectory = "";
 
+    private Label loggedInLabel = new Label("Logged in as: Not logged in");
+    private TextField fileNameField = new TextField();
+    private TextArea filesListArea = new TextArea();
+
     public FileOperationsPane() {
         setHgap(10);
         setVgap(10);
+        setPadding(new Insets(10, 10, 10, 10));
 
-        Label loggedInLabel = new Label("Logged in as: Not logged in");
+        loggedInLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
         add(loggedInLabel, 0, 0, 2, 1);
 
-        Label folderNameLabel = new Label("Folder Name:");
-        add(folderNameLabel, 0, 1);
-        TextField folderNameField = new TextField();
-        add(folderNameField, 1, 1);
-
-        Button createFolderButton = new Button("Create Folder");
-        add(createFolderButton, 1, 2);
-        createFolderButton.setOnAction(e -> {
-            String folderName = folderNameField.getText();
-            if (folderName.isEmpty()) {
-                showAlert("Folder name cannot be empty");
-                return;
-            }
-            FileOperations.createFolder(userDirectory + "/" + folderName);
-        });
-
         Label fileNameLabel = new Label("File Name:");
-        add(fileNameLabel, 0, 3);
-        TextField fileNameField = new TextField();
-        add(fileNameField, 1, 3);
+        add(fileNameLabel, 0, 1);
+        fileNameField.setPromptText("Enter file name");
+        add(fileNameField, 1, 1);
 
         Button deleteFileButton = new Button("Delete File");
-        add(deleteFileButton, 1, 4);
-        deleteFileButton.setOnAction(e -> {
-            String fileName = fileNameField.getText();
-            if (fileName.isEmpty()) {
-                showAlert("File name cannot be empty");
-                return;
-            }
-            FileOperations.deleteFile(userDirectory + "/" + fileName);
-        });
+        deleteFileButton.setOnAction(e -> deleteFile());
+        HBox fileBox = new HBox(10, fileNameField, deleteFileButton);
+        add(fileBox, 1, 2);
 
         Button listFilesButton = new Button("List Files");
-        add(listFilesButton, 1, 5);
-        listFilesButton.setOnAction(e -> FileOperations.listFiles(userDirectory));
+        listFilesButton.setOnAction(e -> listFiles());
+        add(listFilesButton, 1, 3);
+
+        filesListArea.setEditable(false);
+        filesListArea.setPromptText("Files will be listed here...");
+        add(filesListArea, 0, 4, 2, 1);
 
         Button uploadFileButton = new Button("Upload File");
-        add(uploadFileButton, 1, 6);
-        uploadFileButton.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-            File file = fileChooser.showOpenDialog(new Stage());
-            if (file != null) {
-                FileOperations.uploadFile(userDirectory, file);
-            }
-        });
+        uploadFileButton.setOnAction(e -> uploadFile());
+        add(uploadFileButton, 1, 5);
 
         Button downloadFileButton = new Button("Download File");
-        add(downloadFileButton, 1, 7);
-        downloadFileButton.setOnAction(e -> {
-            String fileName = fileNameField.getText();
-            if (fileName.isEmpty()) {
-                showAlert("File name cannot be empty");
-                return;
+        downloadFileButton.setOnAction(e -> downloadFile());
+        add(downloadFileButton, 1, 6);
+    }
+
+    private void deleteFile() {
+        String fileName = fileNameField.getText();
+        if (fileName.isEmpty()) {
+            showAlert("File name cannot be empty");
+            return;
+        }
+        FileOperations.deleteFile(userDirectory + "/" + fileName);
+    }
+
+    private void listFiles() {
+        FileOperations.listFiles(userDirectory, files -> {
+            StringBuilder fileList = new StringBuilder("Files:\n");
+            for (String file : files) {
+                fileList.append(file).append("\n");
             }
-            FileOperations.downloadFile(fileName);
+            Platform.runLater(() -> filesListArea.setText(fileList.toString()));
         });
+    }
+
+    private void uploadFile() {
+        FileChooser fileChooser = new FileChooser();
+        File file = fileChooser.showOpenDialog(new Stage());
+        if (file != null) {
+            FileOperations.uploadFile(userDirectory, file);
+        }
+    }
+
+    private void downloadFile() {
+        String fileName = fileNameField.getText();
+        if (fileName.isEmpty()) {
+            showAlert("File name cannot be empty");
+            return;
+        }
+        FileOperations.downloadFile("/" + fileName);
     }
 
     public void setLoggedInUser(BackendlessUser user) {
         this.loggedInUser = user;
         if (user != null) {
             this.userDirectory = "/user_" + user.getEmail();
-            Platform.runLater(() -> {
-                updateUIForLoggedInUser();
-            });
+            Platform.runLater(this::updateUIForLoggedInUser);
         }
     }
 
     private void updateUIForLoggedInUser() {
-        Label loggedInLabel = new Label("Logged in as: " + (loggedInUser != null ? loggedInUser.getEmail() : "Not logged in"));
-        add(loggedInLabel, 0, 0, 2, 1);
+        loggedInLabel.setText("Logged in as: " + (loggedInUser != null ? loggedInUser.getEmail() : "Not logged in"));
     }
 
     private void showAlert(String message) {
@@ -104,6 +111,3 @@ public class FileOperationsPane extends GridPane {
         alert.showAndWait();
     }
 }
-
-
-
