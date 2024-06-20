@@ -88,7 +88,7 @@ public class FileOperationsPane extends GridPane {
             showAlert("File name cannot be empty");
             return;
         }
-        FileOperations.downloadFile("/" + fileName);
+        FileOperations.downloadFile(userDirectory + "/" + fileName);
     }
 
     public void setLoggedInUser(BackendlessUser user) {

@@ -10,9 +10,9 @@ import com.backendless.Backendless;
 
 public class MainApp extends Application {
 
-    private static final String APP_ID = "A1520ABC-8D52-4A40-B9A8-945270F0F8C2";
-    private static final String API_KEY = "07BEA6C1-A0BB-46E7-ABD4-7FD45756E1DD";
-    private static final String SERVER_URL = "https://eu-api.backendless.com";
+    public static final String APP_ID = "A1520ABC-8D52-4A40-B9A8-945270F0F8C2";
+    public static final String API_KEY = "07BEA6C1-A0BB-46E7-ABD4-7FD45756E1DD";
+    public static final String SERVER_URL = "https://eu-api.backendless.com";
 
     public static void main(String[] args) {
         Backendless.setUrl(SERVER_URL);

@@ -8,10 +8,7 @@ import com.backendless.exceptions.BackendlessFault;
 import com.backendless.files.BackendlessFile;
 import com.backendless.files.FileInfo;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -19,14 +16,22 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileOperations {
+import static backendless.MainApp.SERVER_URL;
+import static backendless.MainApp.APP_ID;
+import static backendless.MainApp.API_KEY;
 
+public class FileOperations {
     public static void createUserDirectory(String email) {
         String userDirectory = "/user_" + email;
         Backendless.Files.createDirectory(userDirectory, new AsyncCallback<Void>() {
             @Override
             public void handleResponse(Void response) {
-                Platform.runLater(() -> showAlert("User directory created successfully."));
+                try {
+                    setUserDirectoryPermissions(userDirectory);
+                    Platform.runLater(() -> showAlert("User directory created successfully."));
+                } catch (IOException e) {
+                    Platform.runLater(() -> showAlert("Error setting permissions: " + e.getMessage()));
+                }
             }
 
             @Override
@@ -34,6 +39,40 @@ public class FileOperations {
                 Platform.runLater(() -> showAlert("Error creating user directory: " + fault.getMessage()));
             }
         });
+    }
+
+    private static void setUserDirectoryPermissions(String directoryPath) throws IOException {
+        setPermission(directoryPath, "AuthenticatedUser", "READ");
+        setPermission(directoryPath, "AuthenticatedUser", "WRITE");
+        setPermission(directoryPath, "AuthenticatedUser", "DELETE");
+    }
+
+    private static void setPermission(String directoryPath, String role, String permission) throws IOException {
+        String url = SERVER_URL + "/" + APP_ID + "/" + API_KEY + "/files/permissions/role/" + role + "/" + permission + directoryPath;
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod("PUT");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("application-id", APP_ID);
+        con.setRequestProperty("secret-key", API_KEY);
+        con.setDoOutput(true);
+
+        try (OutputStream os = con.getOutputStream()) {
+            byte[] input = "{}".getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = con.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            throw new IOException("Failed to set permission: " + response.toString());
+        }
     }
 
     public static void deleteFile(String fileName) {
@@ -84,9 +123,10 @@ public class FileOperations {
 
     public static void downloadFile(String filePath) {
         try {
-            String fileURL = "https://eu-api.backendless.com/" + "YOUR-APPLICATION-ID" + "/" + "YOUR-API-KEY" + "/files" + filePath;
+            String fileURL = SERVER_URL + "/" + APP_ID + "/" + API_KEY + "/files" + filePath;
             URL website = new URL(fileURL);
             HttpURLConnection connection = (HttpURLConnection) website.openConnection();
+            connection.setRequestMethod("GET");
             InputStream inputStream = connection.getInputStream();
             ReadableByteChannel rbc = Channels.newChannel(inputStream);
             File file = new File("downloaded_" + new File(filePath).getName());
