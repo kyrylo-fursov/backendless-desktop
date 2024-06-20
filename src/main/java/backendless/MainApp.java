@@ -1,26 +1,12 @@
 package backendless;
 
-import com.backendless.BackendlessUser;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import com.backendless.Backendless;
-import com.backendless.async.callback.AsyncCallback;
-import com.backendless.exceptions.BackendlessFault;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainApp extends Application {
 
@@ -36,46 +22,25 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Backendless Test");
+        primaryStage.setTitle("User Management");
 
-        Label label = new Label("Saving object to Backendless...");
-        VBox root = new VBox();
-        root.getChildren().add(label);
+        TabPane tabPane = new TabPane();
+        Tab registerTab = new Tab("Register");
+        Tab loginTab = new Tab("Login");
+        Tab fileOperationsTab = new Tab("File Operations");
+        Tab resetPasswordTab = new Tab("Reset Password");
 
-        Scene scene = new Scene(root, 300, 200);
+        FileOperationsPane fileOperationsPane = new FileOperationsPane();
+
+        registerTab.setContent(new RegisterPane());
+        loginTab.setContent(new LoginPane(fileOperationsPane));
+        fileOperationsTab.setContent(fileOperationsPane);
+        resetPasswordTab.setContent(new ResetPasswordPane());
+
+        tabPane.getTabs().addAll(registerTab, loginTab, fileOperationsTab, resetPasswordTab);
+
+        Scene scene = new Scene(tabPane, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
-
-        HashMap<String, Object> testObject = new HashMap<>();
-        testObject.put("foo", "bar");
-
-        Backendless.Data.of("TestTable").save(testObject, new AsyncCallback<Map>() {
-            @Override
-            public void handleResponse(Map response) {
-                Platform.runLater(() -> label.setText("Object is saved in Backendless. Please check in the console."));
-            }
-
-            @Override
-            public void handleFault(BackendlessFault fault) {
-                String faultDetails = "Error Code: " + fault.getCode() + "\n" +
-                        "Message: " + fault.getMessage() + "\n" +
-                        "Detail: " + fault.getDetail();
-                System.err.println(faultDetails);
-                Platform.runLater(() -> {
-                    label.setText("Error: " + fault.getMessage());
-                    showAlert("Error", faultDetails);
-                });
-            }
-        });
-    }
-
-    private void showAlert(String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
     }
 }
