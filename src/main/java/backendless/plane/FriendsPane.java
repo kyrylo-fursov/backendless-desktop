@@ -124,6 +124,18 @@ public class FriendsPane extends GridPane {
             return;
         }
 
+        // Check if user is trying to add themselves
+        if (email.equals(currentUser.getEmail())) {
+            showAlert("You cannot add yourself as a friend.");
+            return;
+        }
+
+        List<String> friends = getListFromJson(currentUser.getProperty("friends"));
+        if (friends != null && friends.contains(email)) {
+            showAlert("This user is already your friend.");
+            return;
+        }
+
         String whereClause = "email = '" + email + "'";
         DataQueryBuilder queryBuilder = DataQueryBuilder.create();
         queryBuilder.setWhereClause(whereClause);
@@ -133,7 +145,13 @@ public class FriendsPane extends GridPane {
             public void handleResponse(List<BackendlessUser> users) {
                 if (!users.isEmpty()) {
                     BackendlessUser userToAdd = users.get(0);
-                    sendFriendRequest(userToAdd);
+                    // Check if there is already a friend request from this user
+                    List<String> existingFriendRequests = getListFromJson(currentUser.getProperty("friendRequests"));
+                    if (existingFriendRequests != null && existingFriendRequests.contains(userToAdd.getEmail())) {
+                        acceptMutualFriendRequest(userToAdd);
+                    } else {
+                        sendFriendRequest(userToAdd);
+                    }
                 } else {
                     Platform.runLater(() -> showAlert("User not found."));
                 }
@@ -209,6 +227,60 @@ public class FriendsPane extends GridPane {
         });
     }
 
+    private void acceptMutualFriendRequest(BackendlessUser userToAdd) {
+        List<String> friends = getListFromJson(currentUser.getProperty("friends"));
+        if (friends == null) {
+            friends = new ArrayList<>();
+        }
+        if (!friends.contains(userToAdd.getEmail())) {
+            friends.add(userToAdd.getEmail());
+        }
+        currentUser.setProperty("friends", gson.toJson(friends));
+
+        List<String> friendRequests = getListFromJson(currentUser.getProperty("friendRequests"));
+        friendRequests.remove(userToAdd.getEmail());
+        currentUser.setProperty("friendRequests", gson.toJson(friendRequests));
+
+        Backendless.UserService.update(currentUser, new AsyncCallback<BackendlessUser>() {
+            @Override
+            public void handleResponse(BackendlessUser updatedUser) {
+                List<String> userToAddFriends = getListFromJson(userToAdd.getProperty("friends"));
+                if (userToAddFriends == null) {
+                    userToAddFriends = new ArrayList<>();
+                }
+                if (!userToAddFriends.contains(currentUser.getEmail())) {
+                    userToAddFriends.add(currentUser.getEmail());
+                }
+                userToAdd.setProperty("friends", gson.toJson(userToAddFriends));
+
+                List<String> userToAddFriendRequests = getListFromJson(userToAdd.getProperty("friendRequests"));
+                userToAddFriendRequests.remove(currentUser.getEmail());
+                userToAdd.setProperty("friendRequests", gson.toJson(userToAddFriendRequests));
+
+                Backendless.UserService.update(userToAdd, new AsyncCallback<BackendlessUser>() {
+                    @Override
+                    public void handleResponse(BackendlessUser updatedUser) {
+                        Platform.runLater(() -> {
+                            showAlert("Friend request accepted.");
+                            loadFriends();
+                            loadFriendRequests();
+                        });
+                    }
+
+                    @Override
+                    public void handleFault(BackendlessFault fault) {
+                        Platform.runLater(() -> showAlert("Error accepting friend request: " + fault.getMessage()));
+                    }
+                });
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Platform.runLater(() -> showAlert("Error updating friends list: " + fault.getMessage()));
+            }
+        });
+    }
+
     private void acceptFriendRequest(String email) {
         String whereClause = "email = '" + email + "'";
         DataQueryBuilder queryBuilder = DataQueryBuilder.create();
@@ -224,8 +296,14 @@ public class FriendsPane extends GridPane {
                     if (friends == null) {
                         friends = new ArrayList<>();
                     }
-                    friends.add(userToAccept.getEmail());
+                    if (!friends.contains(userToAccept.getEmail())) {
+                        friends.add(userToAccept.getEmail());
+                    }
                     currentUser.setProperty("friends", gson.toJson(friends));
+
+                    List<String> friendRequests = getListFromJson(currentUser.getProperty("friendRequests"));
+                    friendRequests.remove(userToAccept.getEmail());
+                    currentUser.setProperty("friendRequests", gson.toJson(friendRequests));
 
                     Backendless.UserService.update(currentUser, new AsyncCallback<BackendlessUser>() {
                         @Override
@@ -234,8 +312,14 @@ public class FriendsPane extends GridPane {
                             if (userToAcceptFriends == null) {
                                 userToAcceptFriends = new ArrayList<>();
                             }
-                            userToAcceptFriends.add(currentUser.getEmail());
+                            if (!userToAcceptFriends.contains(currentUser.getEmail())) {
+                                userToAcceptFriends.add(currentUser.getEmail());
+                            }
                             userToAccept.setProperty("friends", gson.toJson(userToAcceptFriends));
+
+                            List<String> userToAcceptFriendRequests = getListFromJson(userToAccept.getProperty("friendRequests"));
+                            userToAcceptFriendRequests.remove(currentUser.getEmail());
+                            userToAccept.setProperty("friendRequests", gson.toJson(userToAcceptFriendRequests));
 
                             Backendless.UserService.update(userToAccept, new AsyncCallback<BackendlessUser>() {
                                 @Override
