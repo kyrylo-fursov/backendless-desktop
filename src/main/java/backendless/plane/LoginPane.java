@@ -14,11 +14,13 @@ public class LoginPane extends GridPane {
     private final FileOperationsPane fileOperationsPane;
     private final PlacePane placePane;
     private final UserProfilePane userProfilePane;
+    private final FriendsPane friendsPane;
 
-    public LoginPane(FileOperationsPane fileOperationsPane, PlacePane placePane, UserProfilePane userProfilePane) {
+    public LoginPane(FileOperationsPane fileOperationsPane, PlacePane placePane, UserProfilePane userProfilePane, FriendsPane friendsPane) {
         this.fileOperationsPane = fileOperationsPane;
         this.placePane = placePane;
         this.userProfilePane = userProfilePane;
+        this.friendsPane = friendsPane;
         setHgap(10);
         setVgap(10);
 
@@ -48,6 +50,7 @@ public class LoginPane extends GridPane {
                         fileOperationsPane.setLoggedInUser(user);
                         placePane.setLoggedInUser(user);
                         userProfilePane.setLoggedInUser(user);
+                        friendsPane.setLoggedInUser(user);
                     });
                 }
 

@@ -1,6 +1,7 @@
 package backendless;
 
 import backendless.plane.FileOperationsPane;
+import backendless.plane.FriendsPane;
 import backendless.plane.LoginPane;
 import backendless.plane.PlacePane;
 import backendless.plane.RegisterPane;
@@ -23,6 +24,7 @@ public class MainApp extends Application {
     private FileOperationsPane fileOperationsPane;
     private PlacePane placePane;
     private UserProfilePane userProfilePane;
+    private FriendsPane friendsPane;
 
     public static void main(String[] args) {
         Backendless.setUrl(SERVER_URL);
@@ -37,6 +39,7 @@ public class MainApp extends Application {
         fileOperationsPane = new FileOperationsPane();
         placePane = new PlacePane();
         userProfilePane = new UserProfilePane();
+        friendsPane = new FriendsPane();
 
         TabPane tabPane = new TabPane();
         Tab registerTab = new Tab("Register");
@@ -44,14 +47,16 @@ public class MainApp extends Application {
         Tab fileOperationsTab = new Tab("File Operations");
         Tab userProfileTab = new Tab("User Profile");
         Tab placeTab = new Tab("Places");
+        Tab friendsTab = new Tab("Friends");
 
         registerTab.setContent(new RegisterPane());
-        loginTab.setContent(new LoginPane(fileOperationsPane, placePane, userProfilePane));
+        loginTab.setContent(new LoginPane(fileOperationsPane, placePane, userProfilePane, friendsPane));
         fileOperationsTab.setContent(fileOperationsPane);
         userProfileTab.setContent(userProfilePane);
         placeTab.setContent(placePane);
+        friendsTab.setContent(friendsPane);
 
-        tabPane.getTabs().addAll(registerTab, loginTab, fileOperationsTab, userProfileTab, placeTab);
+        tabPane.getTabs().addAll(registerTab, loginTab, fileOperationsTab, userProfileTab, placeTab, friendsTab);
 
         Scene scene = new Scene(tabPane, 800, 600);
         primaryStage.setScene(scene);
@@ -62,6 +67,7 @@ public class MainApp extends Application {
             userProfilePane.setLoggedInUser(user);
             fileOperationsPane.setLoggedInUser(user);
             placePane.setLoggedInUser(user);
+            friendsPane.setLoggedInUser(user);
         }
     }
 }
