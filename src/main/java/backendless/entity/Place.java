@@ -9,7 +9,7 @@ public class Place {
     private double latitude;
     private double longitude;
     private String hashtags;
-    private String ownerId; // Update to use ownerId instead of owner
+    private String ownerId;
 
     public Place() {
     }
