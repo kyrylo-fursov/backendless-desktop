@@ -1,4 +1,4 @@
-package backendless;
+package backendless.plane;
 
 import com.backendless.Backendless;
 import javafx.application.Platform;

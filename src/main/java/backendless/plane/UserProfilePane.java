@@ -1,4 +1,5 @@
-package backendless;
+package backendless.plane;
+import backendless.LocationUpdater;
 import com.backendless.Backendless;
 import javafx.application.Platform;
 import javafx.scene.control.*;

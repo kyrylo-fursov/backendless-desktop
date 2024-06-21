@@ -144,7 +144,7 @@ public class FileOperations {
         }
     }
 
-    static void showAlert(String message) {
+    public static void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Information");
         alert.setHeaderText(null);

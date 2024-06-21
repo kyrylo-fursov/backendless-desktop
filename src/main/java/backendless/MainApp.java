@@ -1,5 +1,10 @@
 package backendless;
 
+import backendless.plane.FileOperationsPane;
+import backendless.plane.LoginPane;
+import backendless.plane.PlacePane;
+import backendless.plane.RegisterPane;
+import backendless.plane.UserProfilePane;
 import com.backendless.BackendlessUser;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -30,6 +35,7 @@ public class MainApp extends Application {
         Tab loginTab = new Tab("Login");
         Tab fileOperationsTab = new Tab("File Operations");
         Tab userProfileTab = new Tab("User Profile");
+        Tab placeTab = new Tab("Places");
 
         FileOperationsPane fileOperationsPane = new FileOperationsPane();
 
@@ -37,8 +43,9 @@ public class MainApp extends Application {
         loginTab.setContent(new LoginPane(fileOperationsPane));
         fileOperationsTab.setContent(fileOperationsPane);
         userProfileTab.setContent(new UserProfilePane());
+        placeTab.setContent(new PlacePane());
 
-        tabPane.getTabs().addAll(registerTab, loginTab, fileOperationsTab, userProfileTab);
+        tabPane.getTabs().addAll(registerTab, loginTab, fileOperationsTab, userProfileTab, placeTab);
 
         Scene scene = new Scene(tabPane, 800, 600);
         primaryStage.setScene(scene);
