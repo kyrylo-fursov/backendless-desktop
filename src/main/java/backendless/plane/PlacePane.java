@@ -108,11 +108,35 @@ public class PlacePane extends GridPane {
 
     private void addPlace() {
         String description = descriptionField.getText();
-        double latitude = Double.parseDouble(latitudeField.getText());
-        double longitude = Double.parseDouble(longitudeField.getText());
+        String latitudeText = latitudeField.getText();
+        String longitudeText = longitudeField.getText();
         String hashtags = hashtagsField.getText();
 
-        Place place = new Place(description, latitude, longitude, hashtags, currentUser);
+        // Validate fields
+        if (description.isEmpty()) {
+            showAlert("Description cannot be empty.");
+            return;
+        }
+
+        if (latitudeText.isEmpty() || !isValidDouble(latitudeText)) {
+            showAlert("Invalid latitude value.");
+            return;
+        }
+
+        if (longitudeText.isEmpty() || !isValidDouble(longitudeText)) {
+            showAlert("Invalid longitude value.");
+            return;
+        }
+
+        double latitude = Double.parseDouble(latitudeText);
+        double longitude = Double.parseDouble(longitudeText);
+
+        if (hashtags.isEmpty()) {
+            showAlert("Hashtags cannot be empty.");
+            return;
+        }
+
+        Place place = new Place(description, latitude, longitude, hashtags, currentUser.getObjectId());
 
         Backendless.Data.of(Place.class).save(place, new AsyncCallback<Place>() {
             @Override
@@ -136,7 +160,7 @@ public class PlacePane extends GridPane {
         }
 
         DataQueryBuilder queryBuilder = DataQueryBuilder.create();
-        queryBuilder.setWhereClause("owner.objectId = '" + currentUser.getObjectId() + "'");
+        queryBuilder.setWhereClause("ownerId = '" + currentUser.getObjectId() + "'");
         Backendless.Data.of(Place.class).find(queryBuilder, new AsyncCallback<List<Place>>() {
             @Override
             public void handleResponse(List<Place> response) {
@@ -153,6 +177,15 @@ public class PlacePane extends GridPane {
                 Platform.runLater(() -> showAlert("Error loading places: " + fault.getMessage()));
             }
         });
+    }
+
+    private boolean isValidDouble(String value) {
+        try {
+            Double.parseDouble(value);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private void showAlert(String message) {

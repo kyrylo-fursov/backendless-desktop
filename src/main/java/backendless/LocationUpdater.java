@@ -46,7 +46,6 @@ public class LocationUpdater extends ScheduledService<Void> {
     private double[] getCurrentLocation() {
         double latitude = 0.0;
         double longitude = 0.0;
-        // Example of setting random location, you need to implement actual location logic
         latitude = Math.random() * 90;
         longitude = Math.random() * 180;
         return new double[]{latitude, longitude};

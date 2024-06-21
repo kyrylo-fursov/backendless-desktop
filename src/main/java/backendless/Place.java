@@ -9,17 +9,17 @@ public class Place {
     private double latitude;
     private double longitude;
     private String hashtags;
-    private BackendlessUser owner;
+    private String ownerId; // Update to use ownerId instead of owner
 
     public Place() {
     }
 
-    public Place(String description, double latitude, double longitude, String hashtags, BackendlessUser owner) {
+    public Place(String description, double latitude, double longitude, String hashtags, String ownerId) {
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
         this.hashtags = hashtags;
-        this.owner = owner;
+        this.ownerId = ownerId;
     }
 
     public String getDescription() {
@@ -54,12 +54,12 @@ public class Place {
         this.hashtags = hashtags;
     }
 
-    public BackendlessUser getOwner() {
-        return owner;
+    public String getOwnerId() {
+        return ownerId;
     }
 
-    public void setOwner(BackendlessUser owner) {
-        this.owner = owner;
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class Place {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", hashtags='" + hashtags + '\'' +
-                ", owner='" + (owner != null ? owner.getObjectId() : "null") + '\'' +
+                ", ownerId='" + ownerId + '\'' +
                 '}';
     }
 }

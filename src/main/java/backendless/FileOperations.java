@@ -50,6 +50,10 @@ public class FileOperations {
         }
     }
 
+    public static void uploadFile(String directory, File file, AsyncCallback<BackendlessFile> callback) {
+        Backendless.Files.upload(file, directory, callback);
+    }
+
     private static void setPermission(String directoryPath, String userId, String permission) throws IOException {
         String url = SERVER_URL + "/api/files/permissions/grant/" + directoryPath;
         URL obj = new URL(url);
