@@ -40,6 +40,7 @@ public class MainApp extends Application {
         placePane = new PlacePane();
         userProfilePane = new UserProfilePane();
         friendsPane = new FriendsPane();
+        FeedbackPane feedbackPane = new FeedbackPane();
 
         TabPane tabPane = new TabPane();
         Tab registerTab = new Tab("Register");
@@ -48,6 +49,7 @@ public class MainApp extends Application {
         Tab userProfileTab = new Tab("User Profile");
         Tab placeTab = new Tab("Places");
         Tab friendsTab = new Tab("Friends");
+        Tab feedbackTab = new Tab("Feedback");
 
         registerTab.setContent(new RegisterPane());
         loginTab.setContent(new LoginPane(fileOperationsPane, placePane, userProfilePane, friendsPane));
@@ -55,8 +57,9 @@ public class MainApp extends Application {
         userProfileTab.setContent(userProfilePane);
         placeTab.setContent(placePane);
         friendsTab.setContent(friendsPane);
+        feedbackTab.setContent(feedbackPane);
 
-        tabPane.getTabs().addAll(registerTab, loginTab, fileOperationsTab, userProfileTab, placeTab, friendsTab);
+        tabPane.getTabs().addAll(registerTab, loginTab, fileOperationsTab, userProfileTab, placeTab, friendsTab, feedbackTab);
 
         Scene scene = new Scene(tabPane, 800, 600);
         primaryStage.setScene(scene);
