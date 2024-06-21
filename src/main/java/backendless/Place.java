@@ -1,21 +1,25 @@
 package backendless;
 
 
+import com.backendless.BackendlessUser;
+
 public class Place {
 
     private String description;
     private double latitude;
     private double longitude;
     private String hashtags;
+    private BackendlessUser owner;
 
     public Place() {
     }
 
-    public Place(String description, double latitude, double longitude, String hashtags) {
+    public Place(String description, double latitude, double longitude, String hashtags, BackendlessUser owner) {
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
         this.hashtags = hashtags;
+        this.owner = owner;
     }
 
     public String getDescription() {
@@ -50,6 +54,14 @@ public class Place {
         this.hashtags = hashtags;
     }
 
+    public BackendlessUser getOwner() {
+        return owner;
+    }
+
+    public void setOwner(BackendlessUser owner) {
+        this.owner = owner;
+    }
+
     @Override
     public String toString() {
         return "Place{" +
@@ -57,6 +69,7 @@ public class Place {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", hashtags='" + hashtags + '\'' +
+                ", owner='" + (owner != null ? owner.getObjectId() : "null") + '\'' +
                 '}';
     }
 }

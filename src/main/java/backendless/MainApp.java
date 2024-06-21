@@ -20,6 +20,10 @@ public class MainApp extends Application {
     public static final String API_KEY = "07BEA6C1-A0BB-46E7-ABD4-7FD45756E1DD";
     public static final String SERVER_URL = "https://eu-api.backendless.com";
 
+    private FileOperationsPane fileOperationsPane;
+    private PlacePane placePane;
+    private UserProfilePane userProfilePane;
+
     public static void main(String[] args) {
         Backendless.setUrl(SERVER_URL);
         Backendless.initApp(APP_ID, API_KEY);
@@ -30,6 +34,10 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("User Management");
 
+        fileOperationsPane = new FileOperationsPane();
+        placePane = new PlacePane();
+        userProfilePane = new UserProfilePane();
+
         TabPane tabPane = new TabPane();
         Tab registerTab = new Tab("Register");
         Tab loginTab = new Tab("Login");
@@ -37,13 +45,11 @@ public class MainApp extends Application {
         Tab userProfileTab = new Tab("User Profile");
         Tab placeTab = new Tab("Places");
 
-        FileOperationsPane fileOperationsPane = new FileOperationsPane();
-
         registerTab.setContent(new RegisterPane());
-        loginTab.setContent(new LoginPane(fileOperationsPane));
+        loginTab.setContent(new LoginPane(fileOperationsPane, placePane));
         fileOperationsTab.setContent(fileOperationsPane);
-        userProfileTab.setContent(new UserProfilePane());
-        placeTab.setContent(new PlacePane());
+        userProfileTab.setContent(userProfilePane);
+        placeTab.setContent(placePane);
 
         tabPane.getTabs().addAll(registerTab, loginTab, fileOperationsTab, userProfileTab, placeTab);
 
