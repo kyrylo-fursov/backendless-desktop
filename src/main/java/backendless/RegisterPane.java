@@ -86,7 +86,7 @@ public class RegisterPane extends GridPane {
                 public void handleResponse(BackendlessUser registeredUser) {
                     Platform.runLater(() -> {
                         showAlert("User registered: " + registeredUser.getEmail());
-                        FileOperations.createUserDirectory(registeredUser.getEmail());
+                        FileOperations.createUserDirectory(email, registeredUser.getObjectId());
                     });
                 }
 

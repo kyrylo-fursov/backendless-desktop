@@ -1,5 +1,6 @@
 package backendless;
 
+import com.backendless.BackendlessUser;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
@@ -28,19 +29,25 @@ public class MainApp extends Application {
         Tab registerTab = new Tab("Register");
         Tab loginTab = new Tab("Login");
         Tab fileOperationsTab = new Tab("File Operations");
-        Tab resetPasswordTab = new Tab("Reset Password");
+        Tab userProfileTab = new Tab("User Profile");
 
         FileOperationsPane fileOperationsPane = new FileOperationsPane();
 
         registerTab.setContent(new RegisterPane());
         loginTab.setContent(new LoginPane(fileOperationsPane));
         fileOperationsTab.setContent(fileOperationsPane);
-        resetPasswordTab.setContent(new ResetPasswordPane());
+        userProfileTab.setContent(new UserProfilePane());
 
-        tabPane.getTabs().addAll(registerTab, loginTab, fileOperationsTab, resetPasswordTab);
+        tabPane.getTabs().addAll(registerTab, loginTab, fileOperationsTab, userProfileTab);
 
         Scene scene = new Scene(tabPane, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        BackendlessUser user = Backendless.UserService.CurrentUser();
+        if (user != null && (Boolean) user.getProperty("trackLocation")) {
+            LocationUpdater locationUpdater = new LocationUpdater(user);
+            locationUpdater.start();
+        }
     }
 }
