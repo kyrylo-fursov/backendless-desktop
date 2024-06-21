@@ -58,7 +58,7 @@ public class FeedbackPane extends GridPane {
     }
 
     private void sendEmail(String subject, String message) {
-        String recipient = "developer@example.com"; // Change to the actual developer's email
+        String recipient = "kirfurs31@gmail.com"; 
         BodyParts bodyParts = new BodyParts();
         bodyParts.setTextMessage(message);
 
