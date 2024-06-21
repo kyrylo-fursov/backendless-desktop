@@ -1,10 +1,12 @@
 package backendless.plane;
 import backendless.FileOperations;
-import backendless.LocationUpdater;
 import com.backendless.Backendless;
 import com.backendless.files.BackendlessFile;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
@@ -12,54 +14,51 @@ import com.backendless.BackendlessUser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
-import static backendless.MainApp.SERVER_URL;
 
 
 public class UserProfilePane extends GridPane {
 
     private Label loggedInLabel = new Label("Logged in as: Not logged in");
-    private TextField emailField = new TextField();
     private PasswordField passwordField = new PasswordField();
     private TextField nameField = new TextField();
     private TextField ageField = new TextField();
-    private Label avatarLabel = new Label();
+    private ImageView avatarImageView = new ImageView();
     private Button uploadAvatarButton = new Button("Upload Avatar");
     private Button saveNameButton = new Button("Save Name");
     private Button saveAgeButton = new Button("Save Age");
     private Button savePasswordButton = new Button("Save Password");
 
-    private static final String SERVER_URL = "https://eu-api.backendless.com"; // replace with your server URL
+    private static final String SERVER_URL = "https://lovelycreator-eu.backendless.app"; // replace with your server URL
 
     public UserProfilePane() {
         setHgap(10);
         setVgap(10);
+        setPadding(new Insets(10, 10, 10, 10));
 
         add(loggedInLabel, 0, 0, 2, 1);
 
-        Label emailLabel = new Label("Email:");
-        add(emailLabel, 0, 1);
-        emailField.setDisable(true); // Disable email field as it's not editable
-        add(emailField, 1, 1);
-
         Label passwordLabel = new Label("Password:");
-        add(passwordLabel, 0, 2);
-        add(passwordField, 1, 2);
-        add(savePasswordButton, 2, 2);
+        add(passwordLabel, 0, 1);
+        add(passwordField, 1, 1);
+        add(savePasswordButton, 2, 1);
 
         Label nameLabel = new Label("Name:");
-        add(nameLabel, 0, 3);
-        add(nameField, 1, 3);
-        add(saveNameButton, 2, 3);
+        add(nameLabel, 0, 2);
+        add(nameField, 1, 2);
+        add(saveNameButton, 2, 2);
 
         Label ageLabel = new Label("Age:");
-        add(ageLabel, 0, 4);
-        add(ageField, 1, 4);
-        add(saveAgeButton, 2, 4);
+        add(ageLabel, 0, 3);
+        add(ageField, 1, 3);
+        add(saveAgeButton, 2, 3);
 
-        Label avatar = new Label("Avatar:");
-        add(avatar, 0, 5);
-        add(avatarLabel, 1, 5);
-        add(uploadAvatarButton, 1, 6);
+        Label avatarLabel = new Label("Avatar:");
+        add(avatarLabel, 0, 4);
+        avatarImageView.setFitWidth(100);
+        avatarImageView.setFitHeight(100);
+        avatarImageView.setPreserveRatio(true);
+        add(avatarImageView, 1, 4);
+        add(uploadAvatarButton, 1, 5);
 
         BackendlessUser user = Backendless.UserService.CurrentUser();
         if (user != null) {
@@ -74,11 +73,11 @@ public class UserProfilePane extends GridPane {
 
     private void updateUIForLoggedInUser(BackendlessUser user) {
         loggedInLabel.setText("Logged in as: " + user.getEmail());
-        emailField.setText(user.getEmail());
         nameField.setText((String) user.getProperty("name"));
         ageField.setText(String.valueOf(user.getProperty("age")));
         if (user.getProperty("avatar") != null) {
-            avatarLabel.setText(user.getProperty("avatar").toString());
+            String avatarUrl = user.getProperty("avatar").toString();
+            avatarImageView.setImage(new Image(avatarUrl));
         }
     }
 
@@ -151,20 +150,17 @@ public class UserProfilePane extends GridPane {
         if (file != null) {
             BackendlessUser user = Backendless.UserService.CurrentUser();
             if (user != null) {
-                String userId = user.getObjectId();
-                String email = user.getEmail();
-                String userDirectory = "/user_" + email;
-                String destinationPath = userDirectory + "/avatar.jpg";
+                String userDirectory = "/user_" + user.getEmail();
                 FileOperations.uploadFile(userDirectory, file, new AsyncCallback<BackendlessFile>() {
                     @Override
                     public void handleResponse(BackendlessFile backendlessFile) {
-                        String avatarUrl = SERVER_URL + destinationPath;
+                        String avatarUrl = backendlessFile.getFileURL();
                         user.setProperty("avatar", avatarUrl);
                         Backendless.UserService.update(user, new AsyncCallback<BackendlessUser>() {
                             @Override
                             public void handleResponse(BackendlessUser updatedUser) {
                                 Platform.runLater(() -> {
-                                    avatarLabel.setText(avatarUrl);
+                                    avatarImageView.setImage(new Image(avatarUrl));
                                     showAlert("Profile picture updated successfully.");
                                 });
                             }
