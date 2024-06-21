@@ -1,4 +1,4 @@
-package backendless;
+package backendless.entity;
 
 
 import com.backendless.BackendlessUser;

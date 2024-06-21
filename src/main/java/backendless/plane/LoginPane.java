@@ -13,10 +13,12 @@ public class LoginPane extends GridPane {
     private static BackendlessUser loggedInUser;
     private final FileOperationsPane fileOperationsPane;
     private final PlacePane placePane;
+    private final UserProfilePane userProfilePane;
 
-    public LoginPane(FileOperationsPane fileOperationsPane, PlacePane placePane) {
+    public LoginPane(FileOperationsPane fileOperationsPane, PlacePane placePane, UserProfilePane userProfilePane) {
         this.fileOperationsPane = fileOperationsPane;
         this.placePane = placePane;
+        this.userProfilePane = userProfilePane;
         setHgap(10);
         setVgap(10);
 
@@ -45,6 +47,7 @@ public class LoginPane extends GridPane {
                         showAlert("User logged in: " + user.getEmail());
                         fileOperationsPane.setLoggedInUser(user);
                         placePane.setLoggedInUser(user);
+                        userProfilePane.setLoggedInUser(user);
                     });
                 }
 

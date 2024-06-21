@@ -1,4 +1,4 @@
-package backendless;
+package backendless.service;
 
 import com.backendless.Backendless;
 import javafx.application.Platform;

@@ -1,4 +1,4 @@
-package backendless;
+package backendless.service;
 
 import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
@@ -6,7 +6,7 @@ import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
 import javafx.application.Platform;
 
-import static backendless.FileOperations.showAlert;
+import static backendless.service.FileOperations.showAlert;
 import static backendless.MainApp.SERVER_URL;
 
 public class ProfileService {

@@ -46,7 +46,7 @@ public class MainApp extends Application {
         Tab placeTab = new Tab("Places");
 
         registerTab.setContent(new RegisterPane());
-        loginTab.setContent(new LoginPane(fileOperationsPane, placePane));
+        loginTab.setContent(new LoginPane(fileOperationsPane, placePane, userProfilePane));
         fileOperationsTab.setContent(fileOperationsPane);
         userProfileTab.setContent(userProfilePane);
         placeTab.setContent(placePane);
@@ -58,9 +58,10 @@ public class MainApp extends Application {
         primaryStage.show();
 
         BackendlessUser user = Backendless.UserService.CurrentUser();
-        if (user != null && (Boolean) user.getProperty("trackLocation")) {
-            LocationUpdater locationUpdater = new LocationUpdater(user);
-            locationUpdater.start();
+        if (user != null) {
+            userProfilePane.setLoggedInUser(user);
+            fileOperationsPane.setLoggedInUser(user);
+            placePane.setLoggedInUser(user);
         }
     }
 }

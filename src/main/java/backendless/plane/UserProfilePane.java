@@ -1,5 +1,5 @@
 package backendless.plane;
-import backendless.FileOperations;
+import backendless.service.FileOperations;
 import com.backendless.Backendless;
 import com.backendless.files.BackendlessFile;
 import javafx.application.Platform;
@@ -60,24 +60,33 @@ public class UserProfilePane extends GridPane {
         add(avatarImageView, 1, 4);
         add(uploadAvatarButton, 1, 5);
 
-        BackendlessUser user = Backendless.UserService.CurrentUser();
-        if (user != null) {
-            updateUIForLoggedInUser(user);
-        }
-
         savePasswordButton.setOnAction(e -> savePassword());
         saveNameButton.setOnAction(e -> saveName());
         saveAgeButton.setOnAction(e -> saveAge());
         uploadAvatarButton.setOnAction(e -> uploadAvatar());
+
+        BackendlessUser user = Backendless.UserService.CurrentUser();
+        if (user != null) {
+            updateUIForLoggedInUser(user);
+        }
+    }
+
+    public void setLoggedInUser(BackendlessUser user) {
+        if (user != null) {
+            Platform.runLater(() -> updateUIForLoggedInUser(user));
+        }
     }
 
     private void updateUIForLoggedInUser(BackendlessUser user) {
         loggedInLabel.setText("Logged in as: " + user.getEmail());
         nameField.setText((String) user.getProperty("name"));
         ageField.setText(String.valueOf(user.getProperty("age")));
-        if (user.getProperty("avatar") != null) {
-            String avatarUrl = user.getProperty("avatar").toString();
+
+        String avatarUrl = (String) user.getProperty("avatar");
+        if (avatarUrl != null && !avatarUrl.isEmpty()) {
             avatarImageView.setImage(new Image(avatarUrl));
+        } else {
+            avatarImageView.setImage(null); // Clear the avatar if not present
         }
     }
 

@@ -1,6 +1,6 @@
 package backendless.plane;
 
-import backendless.Place;
+import backendless.entity.Place;
 import com.backendless.Backendless;
 import com.backendless.BackendlessUser;
 import javafx.application.Platform;
